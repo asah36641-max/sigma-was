@@ -93,6 +93,7 @@ pub struct Transform {
     pub pos_x: f64,
     pub pos_y: f64,
     pub scale_x: f64,
+    #[allow(dead_code)]
     pub scale_y: f64,
 }
 

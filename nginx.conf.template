@@ -45,9 +45,9 @@ server {
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
     # Health check endpoint (for Render.com)
-    # No rate limiting on health checks
+    # Note: Health checks inherit server-level rate limiting (10r/s)
+    # This is acceptable as health checks are infrequent
     location /health {
-        limit_req off;
         access_log off;
         return 200 "healthy\n";
         add_header Content-Type text/plain;

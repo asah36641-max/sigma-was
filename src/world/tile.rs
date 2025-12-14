@@ -42,10 +42,6 @@ impl Tile {
         }
     }
 
-    pub fn default() -> Tile {
-        Tile::new(0_f64, 0_f64, 1_f64)
-    }
-
     pub fn reset(&mut self, end_node: &Tile) {
         self.parent_id = -1;
         self.g = 0;

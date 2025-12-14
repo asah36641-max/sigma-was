@@ -152,11 +152,13 @@ impl WorldState {
         }
     }
 
+    #[allow(dead_code)]
     fn get_tile_at(&mut self, x: u32, y: u32) -> &mut Tile {
         let index = self.get_tile_id_at(x, y);
         &mut self.tiles[index]
     }
 
+    #[allow(dead_code)]
     fn get_random_tile(&mut self) -> Tile {
         let num_x_tiles = (self.width / self.tile_size) as i32;
         let num_y_tiles = (self.height / self.tile_size) as i32;
@@ -230,6 +232,7 @@ impl WorldState {
         }
     }
 
+    #[allow(dead_code)]
     fn print_map(&self) {
         let num_y_tiles = self.height / self.tile_size;
         let num_x_tiles = self.width / self.tile_size;
@@ -264,6 +267,7 @@ impl WorldState {
         }
     }
 
+    #[allow(dead_code)]
     fn load_test_map(&mut self) {
         let test_map = "0,0,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,0,1,0,0,1,0,0,0,1,1,0,1,0,0,0,
             0,0,1,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,1,0,1,0,1,1,1,
@@ -300,6 +304,7 @@ impl WorldState {
     }
 }
 
+#[allow(dead_code)]
 fn load_map(tile_size: u32, map: &str) -> Vec<Tile> {
     let mut vec = Vec::new();
     let rows: Vec<&str> = map.split_terminator("\n").collect();

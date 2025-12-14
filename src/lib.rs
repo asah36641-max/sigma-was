@@ -245,20 +245,6 @@ fn draw_tile_with_color(layer: Layer, t: &Tile, c: &engine::Color) {
     );
 }
 
-fn draw_player(world: &WorldState) {
-    let half_tile = (world.tile_size / 2) as f64;
-    js_draw_circle(
-        Layer::Main as i32,
-        world.player.pos_x + half_tile,
-        world.player.pos_y + half_tile,
-        (world.tile_size / 4) as f64,
-        32,
-        100,
-        55,
-        1_f32,
-    );
-}
-
 fn draw_path_count(path_count: i32) {
     js_path_count(Layer::Main as i32, path_count);
 }
