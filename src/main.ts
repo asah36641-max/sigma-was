@@ -9,10 +9,14 @@ const routes: Map<string, RouteHandler> = new Map();
 // Register routes
 routes.set('/astar', initAstar);
 routes.set('/preprocess', initPreprocess);
-routes.set('/', initAstar);
 
 async function route(): Promise<void> {
   const path = window.location.pathname;
+  
+  // Root path shows landing page - no handler needed
+  if (path === '/') {
+    return;
+  }
   
   // Try exact match first
   let handler = routes.get(path);
@@ -25,11 +29,6 @@ async function route(): Promise<void> {
         break;
       }
     }
-  }
-  
-  // Fallback to default
-  if (!handler) {
-    handler = routes.get('/');
   }
   
   if (handler) {

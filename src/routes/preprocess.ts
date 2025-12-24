@@ -10,6 +10,14 @@ interface PreprocessStats {
 
 let wasmModule: WasmModulePreprocess | null = null;
 
+function callUnknownFunction(func: unknown, ...args: unknown[]): unknown {
+  if (typeof func !== 'function') {
+    throw new Error('Function is not callable');
+  }
+  const boundCall = Function.prototype.call.bind(func);
+  return boundCall(undefined, ...args);
+}
+
 function validatePreprocessModule(exports: unknown): WasmModulePreprocess | null {
   if (!validateWasmModule(exports)) {
     return null;
@@ -29,73 +37,66 @@ function validatePreprocessModule(exports: unknown): WasmModulePreprocess | null
   }
   
   const memory = exports.memory;
-  const preprocessImage = exports.preprocess_image;
-  const preprocessText = exports.preprocess_text;
-  const normalizeText = exports.normalize_text;
-  const getPreprocessStats = exports.get_preprocess_stats;
   
   if (
-    typeof preprocessImage === 'function' &&
-    typeof preprocessText === 'function' &&
-    typeof normalizeText === 'function' &&
-    typeof getPreprocessStats === 'function'
+    'preprocess_image' in exports &&
+    'preprocess_text' in exports &&
+    'normalize_text' in exports &&
+    'get_preprocess_stats' in exports &&
+    typeof exports.preprocess_image === 'function' &&
+    typeof exports.preprocess_text === 'function' &&
+    typeof exports.normalize_text === 'function' &&
+    typeof exports.get_preprocess_stats === 'function'
   ) {
-    // TypeScript can't infer the exact function signatures, so we need to validate by calling
-    // But we can construct the object with proper typing by checking the structure matches
+    const exportsRecord: Record<string, unknown> = exports;
+    
     const module: WasmModulePreprocess = {
       memory,
       preprocess_image: (imageData: Uint8Array, sourceWidth: number, sourceHeight: number, targetWidth: number, targetHeight: number): Uint8Array => {
-        if (typeof preprocessImage !== 'function') {
-          throw new Error('preprocess_image is not a function');
-        }
-        const result = preprocessImage(imageData, sourceWidth, sourceHeight, targetWidth, targetHeight);
-        if (!(result instanceof Uint8Array)) {
+        const func = exportsRecord.preprocess_image;
+        const callResult: unknown = callUnknownFunction(func, imageData, sourceWidth, sourceHeight, targetWidth, targetHeight);
+        if (!(callResult instanceof Uint8Array)) {
           throw new Error('preprocess_image did not return Uint8Array');
         }
-        return result;
+        return callResult;
       },
       preprocess_text: (text: string): Uint32Array => {
-        if (typeof preprocessText !== 'function') {
-          throw new Error('preprocess_text is not a function');
-        }
-        const result = preprocessText(text);
-        if (!(result instanceof Uint32Array)) {
+        const func = exportsRecord.preprocess_text;
+        const callResult: unknown = callUnknownFunction(func, text);
+        if (!(callResult instanceof Uint32Array)) {
           throw new Error('preprocess_text did not return Uint32Array');
         }
-        return result;
+        return callResult;
       },
       normalize_text: (text: string): string => {
-        if (typeof normalizeText !== 'function') {
-          throw new Error('normalize_text is not a function');
-        }
-        const result = normalizeText(text);
-        if (typeof result !== 'string') {
+        const func = exportsRecord.normalize_text;
+        const callResult: unknown = callUnknownFunction(func, text);
+        if (typeof callResult !== 'string') {
           throw new Error('normalize_text did not return string');
         }
-        return result;
+        return callResult;
       },
       get_preprocess_stats: (originalSize: number, targetSize: number): PreprocessStats => {
-        if (typeof getPreprocessStats !== 'function') {
-          throw new Error('get_preprocess_stats is not a function');
-        }
-        const result = getPreprocessStats(originalSize, targetSize);
+        const func = exportsRecord.get_preprocess_stats;
+        const callResult: unknown = callUnknownFunction(func, originalSize, targetSize);
         if (
-          typeof result !== 'object' ||
-          result === null ||
-          !('original_size' in result) ||
-          !('target_size' in result) ||
-          !('scale_factor' in result) ||
-          typeof result.original_size !== 'number' ||
-          typeof result.target_size !== 'number' ||
-          typeof result.scale_factor !== 'number'
+          typeof callResult !== 'object' ||
+          callResult === null ||
+          !('original_size' in callResult) ||
+          !('target_size' in callResult) ||
+          !('scale_factor' in callResult) ||
+          typeof callResult.original_size !== 'number' ||
+          typeof callResult.target_size !== 'number' ||
+          typeof callResult.scale_factor !== 'number'
         ) {
           throw new Error('get_preprocess_stats did not return PreprocessStats');
         }
-        return {
-          original_size: result.original_size,
-          target_size: result.target_size,
-          scale_factor: result.scale_factor,
+        const statsObj: { original_size: number; target_size: number; scale_factor: number } = {
+          original_size: callResult.original_size,
+          target_size: callResult.target_size,
+          scale_factor: callResult.scale_factor,
         };
+        return statsObj;
       },
     };
     return module;
@@ -161,7 +162,7 @@ function setupUI(): void {
       alert('Please select an image file');
       return;
     }
-    processImage(imageInput.files[0], imageOutput, statsOutput);
+    void processImage(imageInput.files[0], imageOutput, statsOutput);
   });
 
   processTextBtn.addEventListener('click', () => {
@@ -174,7 +175,7 @@ function setupUI(): void {
   });
 }
 
-async function processImage(file: File, canvas: HTMLCanvasElement, statsDiv: HTMLDivElement): Promise<void> {
+function processImage(file: File, canvas: HTMLCanvasElement, statsDiv: HTMLDivElement): void {
   const module = wasmModule;
   if (!module) {
     throw new Error('WASM module not initialized');

@@ -38,7 +38,7 @@ export const init = async (): Promise<void> => {
   const globalObj: { [key: string]: unknown } = globalThis;
   globalObj.js_random = (): number => wasmImports.js_random();
   globalObj.js_random_range = (min: number, max: number): number => wasmImports.js_random_range(min, max);
-  globalObj.js_log = (msg: string): void => wasmImports.js_log(msg);
+  globalObj.js_log = (): void => wasmImports.js_log();
   globalObj.js_request_tick = (): void => wasmImports.js_request_tick();
   globalObj.js_start_interval_tick = (ms: number): void => wasmImports.js_start_interval_tick(ms);
   globalObj.js_create_layer = (id: string, key: number): void => wasmImports.js_create_layer(id, key);
@@ -141,7 +141,7 @@ const getWasmImports = () => {
       return Math.floor(Math.random() * (max + 1 - min)) + min;
     },
 
-    js_log(_msg: string): void {
+    js_log(): void {
       // Logging disabled per code requirements
     },
 

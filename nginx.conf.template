@@ -41,20 +41,24 @@ server {
         access_log off;
     }
 
-    # Serve static files and handle routing
-    # Routes are handled client-side, so all routes fall back to index.html
-    # The router in main.ts will handle the actual routing
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-    
-    # Explicit routes for better clarity (optional, but helps with caching)
+    # Serve specific HTML pages for endpoints
+    # Vite builds pages in dist/pages/ subdirectory, so we need to map URLs to file paths
     location = /astar {
-        try_files /astar.html /index.html;
+        try_files /pages/astar.html =404;
     }
     
     location = /preprocess {
-        try_files /preprocess.html /index.html;
+        try_files /pages/preprocess.html =404;
+    }
+    
+    # Root path serves landing page
+    location = / {
+        try_files /index.html =404;
+    }
+    
+    # All other routes fall back to index.html for client-side routing
+    location / {
+        try_files $uri $uri/ /index.html;
     }
 
     # Cache static assets with long expiration
