@@ -66,6 +66,29 @@ function copyDir(src: string, dest: string): void {
   }
 }
 
+// Plugin to rewrite pkg/ import paths to absolute paths
+function rewriteWasmImports(): Plugin {
+  return {
+    name: 'rewrite-wasm-imports',
+    renderChunk(code, chunk) {
+      // Rewrite relative pkg/ imports to absolute /pkg/ paths
+      // This ensures imports work correctly at runtime regardless of where the script is located
+      if (chunk.isEntry || code.includes('/pkg/') || code.includes('\\pkg\\')) {
+        // Match relative imports like ../../pkg/ or ../pkg/ and rewrite to /pkg/
+        // Preserve the quote type (single or double) used in the original import
+        const rewritten = code.replace(
+          /import\s*\((['"])(\.\.\/)+pkg\/([^'"]+)\1\)/g,
+          (match, quote, dots, path) => {
+            return `import(${quote}/pkg/${path}${quote})`;
+          }
+        );
+        return { code: rewritten, map: null };
+      }
+      return null;
+    },
+  };
+}
+
 // Plugin to copy pkg directory to dist/pkg during build
 function copyWasmModules(): Plugin {
   return {
@@ -82,7 +105,7 @@ function copyWasmModules(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [devServerRouting(), copyWasmModules()],
+  plugins: [devServerRouting(), rewriteWasmImports(), copyWasmModules()],
   build: {
     target: 'esnext',
     assetsInlineLimit: 0, // Prevent WASM from being inlined as data URIs
