@@ -88,6 +88,14 @@ server {
         try_files /pages/fractal-chat.html =404;
     }
     
+    location = /hello-wasm {
+        try_files /pages/hello-wasm.html =404;
+    }
+    
+    location = /babylon-wfc {
+        try_files /pages/babylon-wfc.html =404;
+    }
+    
     # Root path serves landing page
     location = / {
         try_files /index.html =404;
