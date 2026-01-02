@@ -782,8 +782,11 @@ pub fn generate_voronoi_regions(
     // Generate hex grid
     let hex_grid = generate_hex_grid(max_layer, center_q, center_r);
     
+    // DEBUG: Force return test value to verify function is being called
+    // TODO: Remove after debugging
     if hex_grid.is_empty() {
-        return "[]".to_string();
+        // Return test value instead of empty to verify function is working
+        return r#"[{"q":0,"r":0,"tileType":0}]"#.to_string();
     }
     
     // Create a vector of valid hex coordinates for seed generation
