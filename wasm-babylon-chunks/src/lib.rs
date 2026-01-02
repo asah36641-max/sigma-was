@@ -799,55 +799,53 @@ pub fn generate_voronoi_regions(
     // Generate seed points by sampling from actual hex grid coordinates
     let mut seeds: Vec<VoronoiSeed> = Vec::new();
     
-    // Helper to get a random hex coordinate from the grid
-    // Use floor() to ensure index is always in valid range [0, hex_count)
-    // Math::random() returns [0, 1), so floor(random() * count) gives [0, count-1]
-    // This matches the pattern used in wasm-fractal-chat and other modules
-    let get_random_hex = || {
-        if hex_count > 0 {
-            // Math::random() always returns [0, 1), so floor() ensures index is in [0, hex_count)
-            let index = (Math::random() * hex_count as f64).floor() as usize;
-            // Safety check: after floor(), index should always be < hex_count
-            if index < hex_count {
-                Some(hex_vec[index])
-            } else {
-                None
-            }
-        } else {
-            None
-        }
-    };
-    
     // Generate forest seeds
+    // Inline the random selection to avoid closure issues
     for _ in 0..forest_seeds {
-        if let Some((q, r)) = get_random_hex() {
-            seeds.push(VoronoiSeed {
-                q,
-                r,
-                tile_type: TileType::Forest,
-            });
+        if hex_count > 0 {
+            let random_val = Math::random();
+            let index = (random_val * hex_count as f64).floor() as usize;
+            // Ensure index is valid (should always be true after floor, but check for safety)
+            if index < hex_count {
+                let (q, r) = hex_vec[index];
+                seeds.push(VoronoiSeed {
+                    q,
+                    r,
+                    tile_type: TileType::Forest,
+                });
+            }
         }
     }
     
     // Generate water seeds
     for _ in 0..water_seeds {
-        if let Some((q, r)) = get_random_hex() {
-            seeds.push(VoronoiSeed {
-                q,
-                r,
-                tile_type: TileType::Water,
-            });
+        if hex_count > 0 {
+            let random_val = Math::random();
+            let index = (random_val * hex_count as f64).floor() as usize;
+            if index < hex_count {
+                let (q, r) = hex_vec[index];
+                seeds.push(VoronoiSeed {
+                    q,
+                    r,
+                    tile_type: TileType::Water,
+                });
+            }
         }
     }
     
     // Generate grass seeds
     for _ in 0..grass_seeds {
-        if let Some((q, r)) = get_random_hex() {
-            seeds.push(VoronoiSeed {
-                q,
-                r,
-                tile_type: TileType::Grass,
-            });
+        if hex_count > 0 {
+            let random_val = Math::random();
+            let index = (random_val * hex_count as f64).floor() as usize;
+            if index < hex_count {
+                let (q, r) = hex_vec[index];
+                seeds.push(VoronoiSeed {
+                    q,
+                    r,
+                    tile_type: TileType::Grass,
+                });
+            }
         }
     }
     
