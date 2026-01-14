@@ -29,6 +29,8 @@ let wasmModuleExports: {
   increment_counter: () => void;
   get_message: () => string;
   set_message: (message: string) => void;
+  get_favorite_hi: () => string;
+  set_favorite_hi: (hi: string) => void;
 } | null = null;
 
 /**
@@ -104,6 +106,8 @@ const getInitWasm = async (): Promise<unknown> => {
     const incrementCounterFunc = moduleUnknown.increment_counter;
     const getMessageFunc = moduleUnknown.get_message;
     const setMessageFunc = moduleUnknown.set_message;
+    const getFavehiFunc = moduleUnknown.get_fave_hi;
+    const setFavehiFunc = moduleUnknown.set_fave_hi;
     
     if (typeof defaultFunc !== 'function') {
       throw new Error('default export is not a function');
@@ -139,6 +143,10 @@ const getInitWasm = async (): Promise<unknown> => {
       get_message: getMessageFunc as () => string,
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       set_message: setMessageFunc as (message: string) => void,
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      get_favorite_hi: getFavehiFunc as () => string,
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      set_favorite_hi: setFavehiFunc as (hi: string) => void,
     };
   }
   if (!wasmModuleExports) {
