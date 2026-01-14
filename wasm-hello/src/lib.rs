@@ -16,6 +16,8 @@ struct HelloState {
     counter: i32,
     /// Message string that can be set and retrieved
     message: String,
+    /// hi string that can be set and retrieved
+    hi: String,
 }
 
 impl HelloState {
@@ -24,6 +26,7 @@ impl HelloState {
         HelloState {
             counter: 0,
             message: String::from("Rust WASM I don't what this means!"),
+            hi: string ::from("Hello sir")
         }
     }
     
@@ -45,9 +48,17 @@ impl HelloState {
     /// Set a new message
     fn set_message(&mut self, message: String) {
         self.message = message;
+    } 
+    /// Get the current message
+    fn get_fave_hi(&self) -> String {
+        self.hi.clone()
+    }
+    
+    /// Set a new message
+    fn set_fave_hi(&mut self, hi: String) {
+        self.hi = hi;
     }
 }
-
 /// Global state using the LazyLock<Mutex<State>> pattern
 /// 
 /// **Learning Point**: This is the same pattern used in wasm-astar and other modules.
@@ -112,7 +123,7 @@ pub fn increment_counter() {
 /// 
 /// @returns The current message as a JavaScript string
 #[wasm_bindgen]
-pub fn get_message() -> String {
+pub fn get_message(message) -> String {
     let state = HELLO_STATE.lock().unwrap();
     state.get_message()
 }
@@ -130,4 +141,30 @@ pub fn set_message(message: String) {
     let mut state = HELLO_STATE.lock().unwrap();
     state.set_message(message);
 }
+ 
+/// Get the current hi
+/// 
+/// **Learning Point**: Strings in Rust need to be converted to JavaScript strings.
+/// `wasm-bindgen` handles this automatically when you return a `String` from a
+/// `#[wasm_bindgen]` function.
+/// 
+/// @returns The current hi as a JavaScript string
+#[wasm_bindgen]
+pub fn get_fave_hi() -> String {
+    let state = HELLO_STATE.lock().unwrap();
+    state.get_fave_hi()
+}
 
+/// Set a new hi
+/// 
+/// **Learning Point**: JavaScript strings are automatically converted to Rust `String`
+/// when passed as parameters to `#[wasm_bindgen]` functions.
+/// 
+/// **To extend**: You could add validation, length limits, or formatting here.
+/// 
+/// @param message - The new hi to set
+#[wasm_bindgen]
+pub fn set_fave_hi(hi: String) {
+    let mut state = HELLO_STATE.lock().unwrap();
+    state.set_fave_hi(hi);
+}
